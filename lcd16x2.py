@@ -97,3 +97,9 @@ class LCD_16x2():
         finally:
             self.i2c.unlock()  # Always unlock the bus   
             return None
+
+    def homescreen_1(self):
+        self.display_message('Place phone', line_2='in shelf')
+
+    def homescreen_2(self):
+        self.display_message('To start', line_2='study session')
