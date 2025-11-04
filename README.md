@@ -1,4 +1,5 @@
-# cs3031-group5
+# CS3031-group5
+## The Study Assistent Project 
 
 This project uses the Adafruit Circuit Playground Express (CPX), along with several sensors and actuators, to create a study tool.
 
