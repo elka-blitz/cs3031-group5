@@ -1,3 +1,9 @@
+"""
+Class for use with Circuit Playground Express for the purpose of displaying text on a 16x2 LCD
+
+The actual 'screens' should be defined in the main process
+"""
+
 import board
 import busio
 import time
@@ -98,8 +104,3 @@ class LCD_16x2():
             self.i2c.unlock()  # Always unlock the bus   
             return None
 
-    def homescreen(self, frame):
-        if frame == 0:
-            self.display_message('Place phone', line_2='in shelf')
-        elif frame == 1:
-            self.display_message('To start', line_2='study session')
