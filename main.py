@@ -1,6 +1,3 @@
-'''
-Proposed main process to integrate all sensors and actuators
-'''
 from lcd16x2 import LCD_16x2
 import time
 from adafruit_circuitplayground.express import cpx
@@ -22,6 +19,7 @@ FRAME_LENGTH = 1
 TIME_SET = False
 TIME_NAV = 20
 TIME_AMOUNT_SET = 0
+START_TIME = 0
 
 
 lcd = LCD_16x2()
@@ -39,7 +37,7 @@ while True:
         ANIMATION_FRAME_TICK = 0
 
     # Check sensor states
-    drawer_closed = False # Replace with sensor method
+    drawer_closed = True # Replace with sensor method
     phone_placed = True # Replace with sensor method
 
     # Determine system state
@@ -49,7 +47,19 @@ while True:
 
     if drawer_closed and phone_placed:
         # Display countdown 3
-        pass
+        # It's showtime
+        TIME_AMOUNT_SET = TIME_NAV
+
+        if TIME_SET != True: # This should only be done once per shelf close
+            TIME_SET = True
+            START_TIME = time.time()
+
+        remaining_time = time.time() - START_TIME
+        remaining_time_percentage = round(remaining_time / TIME_AMOUNT_SET) # Pass this to external neopixel ring class
+
+        DO_ANIMATION = False # No need for cycle, frame will update with time every second
+
+        lcd.display_message('Studying...', line_2=str(remaining_time))
 
     elif not drawer_closed and not phone_placed:
         # Idle state 0
@@ -79,20 +89,17 @@ while True:
         # Timer set state
         DO_ANIMATION = False
         # Update if change in TIME_NAV detected
-        if nav.touch_a1():
+        if nav.touch_a1(): 
+            # Hey, would be cool to show touch feedback on external neopixel ring for the two touch pins?
+            # If they could display faster than the refresh rate for more immediate feedback
             TIME_NAV += 5
             lcd.display_message('Set time:', line_2=str(TIME_NAV))
 
         if nav.touch_a2():
-            if TIME_NAV - 5 > 5: # Prevent negative numbers
+            if TIME_NAV - 5 > 1: # Prevent negative numbers
                 TIME_NAV = TIME_NAV - 5
             lcd.display_message('Set time:', line_2=str(TIME_NAV))
 
         if ANIMATION_CYCLE != ANIMATION_UPDATE:
             ANIMATION_UPDATE = ANIMATION_CYCLE
             lcd.display_message('Set time:', line_2=str(TIME_NAV))
-
-        pass
-
-        
-# Match timer set?
