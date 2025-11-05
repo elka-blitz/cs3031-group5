@@ -21,7 +21,7 @@ Move the python files to the CPX
 
 Move the `.mpy` binaries to the CPX `lib` folder
 
-### Step 2
+## Testing and Usage
 
 Test operation of states. The following states should be sensed and actuated by the system via the LCD:
 
