@@ -7,7 +7,7 @@ def uid_string(uid):
 
 class nfc_reader:
 
-    def __init__(self, identifier_wildcard, false_count):
+    def __init__(self, identifier_wildcard, max_false_count):
         # UART connection
         self._uart = busio.UART(board.TX, board.RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
@@ -25,7 +25,7 @@ class nfc_reader:
     def poweroff(self):
         self._pn532.power_down()
 
-    def getPhoneState(self,identifier_wildcard):
+    def getPhoneState(self):
         found_phone = False
         uid = self.read()
         
