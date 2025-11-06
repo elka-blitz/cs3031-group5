@@ -8,14 +8,11 @@ class group5StudyAssistantNavigation():
         cpx.pixels.brightness = 0.1
         self.touch_A1 = TouchIn(A1)
         self.touch_A2 = TouchIn(A2)
-
-
     def touch_a1(self):
         if self.touch_A1.raw_value > 3000:
             return True
         else:
-            return False
-        
+            return False    
     def touch_a2(self):
         if self.touch_A2.raw_value > 3000:
             return True
