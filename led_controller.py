@@ -15,6 +15,11 @@ class led_controller:
         self.progress = (255, 170, 1)
         self.sonar = adafruit_hcsr04.HCSR04(trigger_pin=board.A4, echo_pin=board.A5)
 
+    def is_closed(self):
+        if self.sonar.distance >= 5:
+            return False
+        else:
+            return True
 
     def update_lights(self, study_finished):
             try:
