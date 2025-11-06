@@ -2,6 +2,8 @@ from lcd16x2 import LCD_16x2
 import time
 from adafruit_circuitplayground.express import cpx
 from navbuttons import group5StudyAssistantNavigation
+from led_controller import led_controller
+from nfc_reader import nfc_reader
 
 cpx.pixels.brightness = 0.1
 
