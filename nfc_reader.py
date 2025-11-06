@@ -27,11 +27,18 @@ class nfc_reader:
 
     def getPhoneState(self):
         found_phone = False
-        uid = self.read()
+
+        try:
+            uid = self.read()
+
+        except RuntimeError:
+            print("Encountered error. Skip.")
+            pass
         
         if uid != None:
             uid_str = uid_string(uid)
             self.recent_checks.append(uid_str)
+
         else:
             self.recent_checks.append(str(uid))
         
