@@ -5,6 +5,7 @@ from navbuttons import group5StudyAssistantNavigation
 from led_controller import led_controller
 import board
 import adafruit_hcsr04
+from nfc_reader import nfc_reader
 
 led_controller = led_controller()
 cpx.pixels.brightness = 0.1
@@ -28,6 +29,8 @@ TIME_SESSION_COMPLETE = False
 # Initialising actuator and sensor classes
 lcd = LCD_16x2()
 nav = group5StudyAssistantNavigation()
+prox = led_controller()
+nfc = nfc_reader('0x80x', 5) # Max false count can be adjusted
 
 # --------- Main Loop ---------------- #
 while True:
@@ -42,8 +45,8 @@ while True:
         ANIMATION_FRAME_TICK = 0
 
     # Check sensor states
-    drawer_closed = False # Replace with sensor method
-    phone_placed = True # Replace with sensor method
+    drawer_closed = led_controller.is_closed()
+    phone_placed = nfc.getPhoneState()
 
     # Determine system state
     # This could be optimised somehow, see duplicated code
