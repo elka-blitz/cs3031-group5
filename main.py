@@ -10,18 +10,21 @@ cpx.pixels.brightness = 0.1
 
 STUDY_ASSISTANT_STATE = 0
 
+# Variables to control animation
 DO_ANIMATION = True
 ANIMATION_CYCLE = False
 ANIMATION_FRAME_TICK = 0
 ANIMATION_UPDATE = True
 FRAME_LENGTH = 1
 
+# Variables to track time
 TIME_SET = False
 TIME_NAV = 20
 TIME_AMOUNT_SET = 0
 START_TIME = 0
 TIME_SESSION_COMPLETE = False
 
+# Initialising actuator and sensor classes
 lcd = LCD_16x2()
 nav = group5StudyAssistantNavigation()
 
@@ -32,12 +35,13 @@ while True:
     if DO_ANIMATION: # Prevent unneccesary screen refresh where animation tick drive not needed
         ANIMATION_FRAME_TICK += 1
 
+    # This flips the animation frame to show depending on the frame length
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE # Do a flip
         ANIMATION_FRAME_TICK = 0
 
     # Check sensor states
-    drawer_closed = True # Replace with sensor method
+    drawer_closed = False # Replace with sensor method
     phone_placed = True # Replace with sensor method
 
     # Determine system state
@@ -46,11 +50,11 @@ while True:
     # 0, 1, 2, 3
 
     if drawer_closed and phone_placed and not TIME_SESSION_COMPLETE:
-        # Display countdown 3
-        # It's showtime
+        # Display countdown state 
+        # It's showtime, that is to say; time to show time
 
         if TIME_SET != True: # This should only be done once per shelf close
-            TIME_AMOUNT_SET = TIME_NAV
+            TIME_AMOUNT_SET = TIME_NAV # In seconds for testing, multiply by 60 when testing complete
             TIME_SET = True
             START_TIME = time.time()
 
@@ -65,7 +69,7 @@ while True:
         lcd.display_message('Studying...', line_2=str(remaining_time))
 
     elif not drawer_closed and not phone_placed:
-        # Idle state 0
+        # Idle state
 
         DO_ANIMATION = True
         if ANIMATION_CYCLE != ANIMATION_UPDATE:
@@ -77,7 +81,19 @@ while True:
                 lcd.display_message('To start', line_2='study session')
 
     elif drawer_closed:
-        # Phone not detected 1
+        # Phone not detected state 
+
+        if TIME_SESSION_COMPLETE:
+            DO_ANIMATION = True
+            if ANIMATION_CYCLE != ANIMATION_UPDATE:
+                ANIMATION_UPDATE = ANIMATION_CYCLE
+
+                if ANIMATION_CYCLE:
+                    lcd.display_message('Session complete')
+                else:
+                    lcd.display_message('Open shelf', line_2='to restart')
+                break
+
         DO_ANIMATION = True
         if ANIMATION_CYCLE != ANIMATION_UPDATE:
             ANIMATION_UPDATE = ANIMATION_CYCLE
@@ -106,4 +122,3 @@ while True:
         if ANIMATION_CYCLE != ANIMATION_UPDATE:
             ANIMATION_UPDATE = ANIMATION_CYCLE
             lcd.display_message('Set time:', line_2=str(TIME_NAV))
-
