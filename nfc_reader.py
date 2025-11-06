@@ -1,4 +1,5 @@
-import time, busio, board
+from busio import UART
+from board import TX, RX
 from adafruit_pn532.uart import PN532_UART
 
 # method to convert UID address to a string
@@ -9,7 +10,7 @@ class nfc_reader:
 
     def __init__(self, identifier_wildcard, max_false_count):
         # UART connection
-        self._uart = busio.UART(board.TX, board.RX, baudrate=115200, timeout=0.1)
+        self._uart = UART(TX, RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
         ic, ver, rev, support = self._pn532.firmware_version
         print(f"Found PN532 with firmware version: {ver}.{rev}")

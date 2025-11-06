@@ -1,19 +1,19 @@
-import time
-import board
-import adafruit_hcsr04
-import neopixel
+from time import sleep
+from board import A3, A4, A5
+from adafruit_hcsr04 import HCSR04
+from neopixel import NeoPixel
 
 
 class led_controller:
     # replace A? with whatever clips are attached to pins for proximity
     def __init__(self):
         self.pixel_amount = 12
-        self.pixels = neopixel.NeoPixel(board.A1,self.pixel_amount,brightness=0.4,auto_write=True)
+        self.pixels = NeoPixel(A3,self.pixel_amount,brightness=0.4,auto_write=True)
         self.green = (0, 255, 0)
         self.red = (255, 0, 0)
         self.dormant = (0, 0, 0)
         self.progress = (255, 170, 1)
-        self.sonar = adafruit_hcsr04.HCSR04(trigger_pin=board.A4, echo_pin=board.A5)
+        self.sonar = HCSR04(trigger_pin=A4, echo_pin=A5)
 
     def is_closed(self):
         if self.sonar.distance >= 5:
@@ -36,11 +36,11 @@ class led_controller:
                     else:
                         self.pixels.fill(self.red)
                         print("Study unfinished")
-                time.sleep(2)
+                sleep(2)
 
             except RuntimeError:
                 print("Sensor error = retrying...")
-                time.sleep(0.1)
+                sleep(0.1)
 
     def update_progress(self, value):
 # requires max, global value instead of dividing by 10
@@ -54,7 +54,7 @@ class led_controller:
                 else:
                     self.pixels[i] = self.dormant
             print(f"Value: {value} -> ({rounded_percentage} % -> {pixels_lit} pixels lit")
-            time.sleep(2)
+            sleep(2)
         except Exception as e:
             print("Error updating progress:", e)
-            time.sleep(0.1)
+            sleep(0.1)

@@ -1,5 +1,5 @@
 from lcd16x2 import LCD_16x2
-import time
+from time import sleep, time
 from adafruit_circuitplayground.express import cpx
 from navbuttons import group5StudyAssistantNavigation
 from led_controller import led_controller
@@ -26,7 +26,7 @@ nav = group5StudyAssistantNavigation()
 
 # --------- Main Loop ---------------- #
 while True:
-    time.sleep(0.5)
+    sleep(0.5)
 
     if DO_ANIMATION: # Prevent unneccesary screen refresh where animation tick drive not needed
         ANIMATION_FRAME_TICK += 1
@@ -51,9 +51,9 @@ while True:
         if TIME_SET != True: # This should only be done once per shelf close
             TIME_AMOUNT_SET = TIME_NAV # In seconds for testing, multiply by 60 when testing complete
             TIME_SET = True
-            START_TIME = time.time()
+            START_TIME = time()
 
-        elapsed_time = time.time() - START_TIME
+        elapsed_time = time() - START_TIME
         remaining_time = round(((TIME_AMOUNT_SET - elapsed_time) / 60) * 100)
         remaining_time_percentage = round(remaining_time / TIME_AMOUNT_SET) # Pass this to external neopixel ring class
         if remaining_time < 0:
