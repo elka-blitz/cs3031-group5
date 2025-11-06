@@ -2,10 +2,11 @@ from lcd16x2 import LCD_16x2
 import time
 from adafruit_circuitplayground.express import cpx
 from navbuttons import group5StudyAssistantNavigation
+from led_controller import led_controller
 import board
-
 import adafruit_hcsr04
 
+led_controller = led_controller()
 cpx.pixels.brightness = 0.1
 
 STUDY_ASSISTANT_STATE = 0
