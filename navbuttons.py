@@ -1,21 +1,12 @@
-'''
-Buttons are boring
-All my homies hate buttons
-
-Using metal objects instead of dedicated button technology?
-Now that's ubicomp!
-Now we're thinking with portals
-'''
 from adafruit_circuitplayground.express import cpx
-import time
-import touchio
-import board
+from touchio import TouchIn
+from board import A1
 
 class group5StudyAssistantNavigation():
     def __init__(self):
-        self.var1 = 0 # Super descriptive variable
+        self.var1 = 0
         cpx.pixels.brightness = 0.1
-        self.touch_A1 = touchio.TouchIn(board.A1)
+        self.touch_A1 = TouchIn(A1)
 
 
     def touch(self):
