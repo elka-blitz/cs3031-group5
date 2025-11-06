@@ -28,15 +28,13 @@ class nfc_reader:
         found_phone = False
         try:
             uid = self.read()
+            if uid != None:
+                uid_str = uid_string(uid)
+                self.recent_checks.append(uid_str)
+            else:
+                self.recent_checks.append(str(uid))
         except RuntimeError:
-            print("Encountered error. Skip.")
-            pass
-        
-        if uid != None:
-            uid_str = uid_string(uid)
-            self.recent_checks.append(uid_str)
-        else:
-            self.recent_checks.append(str(uid))
+            print("Skipping read.")
         
         for check in self.recent_checks:
             if self.identifier_wildcard in check:
