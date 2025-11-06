@@ -20,7 +20,7 @@ TIME_SET = False
 TIME_NAV = 20
 TIME_AMOUNT_SET = 0
 START_TIME = 0
-
+TIME_SESSION_COMPLETE = False
 
 lcd = LCD_16x2()
 nav = group5StudyAssistantNavigation()
@@ -45,17 +45,20 @@ while True:
     # Either: Idle, Phone not Detected, Phone Detected, Countdown
     # 0, 1, 2, 3
 
-    if drawer_closed and phone_placed:
+    if drawer_closed and phone_placed and not TIME_SESSION_COMPLETE:
         # Display countdown 3
         # It's showtime
-        TIME_AMOUNT_SET = TIME_NAV
 
         if TIME_SET != True: # This should only be done once per shelf close
+            TIME_AMOUNT_SET = TIME_NAV
             TIME_SET = True
             START_TIME = time.time()
 
-        remaining_time = time.time() - START_TIME
+        elapsed_time = time.time() - START_TIME
+        remaining_time = round(((TIME_AMOUNT_SET - elapsed_time) / 60) * 100)
         remaining_time_percentage = round(remaining_time / TIME_AMOUNT_SET) # Pass this to external neopixel ring class
+        if remaining_time < 0:
+            TIME_SESSION_COMPLETE = True
 
         DO_ANIMATION = False # No need for cycle, frame will update with time every second
 
@@ -103,3 +106,4 @@ while True:
         if ANIMATION_CYCLE != ANIMATION_UPDATE:
             ANIMATION_UPDATE = ANIMATION_CYCLE
             lcd.display_message('Set time:', line_2=str(TIME_NAV))
+
