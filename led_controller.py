@@ -8,7 +8,6 @@ class led_controller:
     # replace A? with whatever clips are attached to pins for proximity
     def __init__(self):
         self.pixel_amount = 12
-# self.pix_var = (board.A1, self.pixel_amount, brightness=0.4, auto_write=True)
         self.pixels = neopixel.NeoPixel(board.A1,self.pixel_amount,brightness=0.4,auto_write=True)
         self.green = (0, 255, 0)
         self.red = (255, 0, 0)
@@ -16,14 +15,13 @@ class led_controller:
         self.progress = (255, 170, 1)
         self.sonar = adafruit_hcsr04.HCSR04(trigger_pin=board.A4, echo_pin=board.A5)
 
-    # study_finished = False
 
     def update_lights(self, study_finished):
             try:
                 distance = self.sonar.distance
                 print("Distance", distance, "cm")
                 if distance <= 5:
-                    # update_progress(call in function_variable)
+                    # update_progress(call in function_variable) -> don't need the next line if we are showing continous progress
                     self.pixels.fill(self.dormant)
                     print("study in progress")
                 else:
@@ -42,8 +40,6 @@ class led_controller:
     def update_progress(self, value):
 # requires max, global value instead of dividing by 10
         try:
-# if percentage > 100:
-# percentage = 100
             percentage = (value/10) * 100
             rounded_percentage = round(percentage / 10) * 10
             pixels_lit = int((rounded_percentage / 100) * self.pixel_amount)
