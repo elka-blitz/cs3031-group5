@@ -2,14 +2,12 @@ from busio import UART
 from board import TX, RX
 from adafruit_pn532.uart import PN532_UART
 
-# method to convert UID address to a string
 def uid_string(uid):
     return ''.join([hex(i) for i in uid])
 
 class nfc_reader:
 
-    def __init__(self, identifier_wildcard, max_false_count):
-        # UART connection
+    def __init__(self, identifier_wildcard, max_false_count):       
         self._uart = UART(TX, RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
         ic, ver, rev, support = self._pn532.firmware_version
@@ -28,10 +26,8 @@ class nfc_reader:
 
     def getPhoneState(self):
         found_phone = False
-
         try:
             uid = self.read()
-
         except RuntimeError:
             print("Encountered error. Skip.")
             pass
@@ -39,7 +35,6 @@ class nfc_reader:
         if uid != None:
             uid_str = uid_string(uid)
             self.recent_checks.append(uid_str)
-
         else:
             self.recent_checks.append(str(uid))
         

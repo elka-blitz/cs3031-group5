@@ -5,7 +5,7 @@ from neopixel import NeoPixel
 
 
 class led_controller:
-    # replace A? with whatever clips are attached to pins for proximity
+    
     def __init__(self):
         self.pixel_amount = 12
         self.pixels = NeoPixel(A3,self.pixel_amount,brightness=0.4,auto_write=True)
@@ -26,7 +26,7 @@ class led_controller:
                 distance = self.sonar.distance
                 print("Distance", distance, "cm")
                 if distance <= 5:
-                    # update_progress(call in function_variable) -> don't need the next line if we are showing continous progress
+                    
                     self.pixels.fill(self.dormant)
                     print("study in progress")
                 else:
@@ -43,7 +43,7 @@ class led_controller:
                 sleep(0.1)
 
     def update_progress(self, value):
-# requires max, global value instead of dividing by 10
+
         try:
             percentage = (value/10) * 100
             rounded_percentage = round(percentage / 10) * 10
