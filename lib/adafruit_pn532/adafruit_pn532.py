@@ -58,17 +58,6 @@ _COMMAND_INLISTPASSIVETARGET = const(0x4A)
 
 _MIFARE_ISO14443A = const(0x00)
 
-# Mifare Commands
-MIFARE_CMD_AUTH_A = const(0x60)
-MIFARE_CMD_AUTH_B = const(0x61)
-MIFARE_CMD_READ = const(0x30)
-MIFARE_CMD_WRITE = const(0xA0)
-MIFARE_CMD_TRANSFER = const(0xB0)
-MIFARE_CMD_DECREMENT = const(0xC0)
-MIFARE_CMD_INCREMENT = const(0xC1)
-MIFARE_CMD_STORE = const(0xC2)
-MIFARE_ULTRALIGHT_CMD_WRITE = const(0xA2)
-
 _ACK = b"\x00\x00\xff\x00\xff\x00"
 
 class BusyError(Exception):
