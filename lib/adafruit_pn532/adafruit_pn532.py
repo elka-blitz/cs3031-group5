@@ -26,7 +26,6 @@ Implementation Notes
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 
-import struct
 import time
 
 from digitalio import Direction
@@ -37,7 +36,6 @@ try:
     from busio import UART
     from circuitpython_typing import ReadableBuffer
     from digitalio import DigitalInOut
-    from typing_extensions import Literal
 except ImportError:
     pass
 
@@ -57,7 +55,6 @@ _COMMAND_GETFIRMWAREVERSION = const(0x02)
 _COMMAND_SAMCONFIGURATION = const(0x14)
 _COMMAND_POWERDOWN = const(0x16)
 _COMMAND_INLISTPASSIVETARGET = const(0x4A)
-_COMMAND_INDATAEXCHANGE = const(0x40)
 
 _MIFARE_ISO14443A = const(0x00)
 
