@@ -34,7 +34,7 @@ from micropython import const
 
 try:
     from typing import Optional, Tuple, Union
-
+    from busio import UART
     from circuitpython_typing import ReadableBuffer
     from digitalio import DigitalInOut
     from typing_extensions import Literal
@@ -78,11 +78,12 @@ class BusyError(Exception):
     """Base class for exceptions in this module."""
 
 
-class PN532:
+class PN532_UART:
     """PN532 driver base, must be extended for I2C/SPI/UART interfacing"""
 
     def __init__(
         self,
+        uart: UART,
         *,
         debug: bool = False,
         irq: Optional[DigitalInOut] = None,
@@ -90,30 +91,48 @@ class PN532:
     ) -> None:
         """Create an instance of the PN532 class"""
         self.low_power = True
+        self._uart = uart
         self.debug = debug
         self._irq = irq
         self._reset_pin = reset
         self.reset()
         _ = self.firmware_version
 
-    def _read_data(self, count: int) -> Union[bytes, bytearray]:
-        # Read raw data from device, not including status bytes:
-        # Subclasses MUST implement this!
-        raise NotImplementedError
+    def _read_data(self, count: int) -> bytes: # previously Union[bytes, bytearray]
+        """Read a specified count of bytes from the PN532."""
+        frame = self._uart.read(count)
+        if not frame:
+            raise BusyError("No data read from PN532")
+        if self.debug:
+            print("Reading: ", [hex(i) for i in frame])
+        return frame
 
     def _write_data(self, framebytes: bytes) -> None:
-        # Write raw bytestring data to device, not including status bytes:
-        # Subclasses MUST implement this!
-        raise NotImplementedError
+        """Write a specified count of bytes to the PN532"""
+        self._uart.reset_input_buffer()
+        self._uart.write(framebytes)
 
     def _wait_ready(self, timeout: float) -> bool:
-        # Check if busy up to max length of 'timeout' seconds
-        # Subclasses MUST implement this!
-        raise NotImplementedError
+        """Wait `timeout` seconds"""
+        timestamp = time.monotonic()
+        while (time.monotonic() - timestamp) < timeout:
+            if self._uart.in_waiting > 0:
+                return True  # No Longer Busy
+            time.sleep(0.01)  # lets ask again soon!
+        # Timed out!
+        return False
 
     def _wakeup(self) -> None:
-        # Send special command to wake up
-        raise NotImplementedError
+        """Send any special commands/data to wake up PN532"""
+        if self._reset_pin:
+            self._reset_pin.value = True
+            time.sleep(0.01)
+        self.low_power = False
+        self._uart.write(
+            b"\x55\x55\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        )  # wake up!
+        self.SAM_configuration()
+
 
     def reset(self) -> None:
         """Perform a hardware reset toggle and then wake up the PN532"""
