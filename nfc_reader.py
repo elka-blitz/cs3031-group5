@@ -1,6 +1,6 @@
 from busio import UART
 from board import TX, RX
-from adafruit_pn532.uart import PN532_UART
+from adafruit_pn532 import PN532_UART
 
 def uid_string(uid):
     return ''.join([hex(i) for i in uid])
@@ -10,8 +10,6 @@ class nfc_reader:
     def __init__(self, identifier_wildcard, max_false_count):       
         self._uart = UART(TX, RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
-        ic, ver, rev, support = self._pn532.firmware_version
-        print(f"Found PN532 with firmware version: {ver}.{rev}")
         self._pn532.SAM_configuration()
         self.recent_checks = []
         self.identifier_wildcard = identifier_wildcard
