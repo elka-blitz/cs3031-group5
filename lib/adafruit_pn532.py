@@ -42,10 +42,8 @@ except ImportError:
 __version__ = "2.4.6"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PN532.git"
 
-_PREAMBLE = const(0x00)
-_STARTCODE1 = const(0x00)
+_CONSTZERO = const(0x00)
 _STARTCODE2 = const(0xFF)
-_POSTAMBLE = const(0x00)
 
 _HOSTTOPN532 = const(0xD4)
 _PN532TOHOST = const(0xD5)
@@ -54,8 +52,6 @@ _PN532TOHOST = const(0xD5)
 _COMMAND_SAMCONFIGURATION = const(0x14)
 _COMMAND_POWERDOWN = const(0x16)
 _COMMAND_INLISTPASSIVETARGET = const(0x4A)
-
-_MIFARE_ISO14443A = const(0x00)
 
 _ACK = b"\x00\x00\xff\x00\xff\x00"
 
@@ -141,8 +137,8 @@ class PN532_UART:
         # - Postamble (0x00)
         length = len(data)
         frame = bytearray(length + 8)
-        frame[0] = _PREAMBLE
-        frame[1] = _STARTCODE1
+        frame[0] = _CONSTZERO
+        frame[1] = _CONSTZERO
         frame[2] = _STARTCODE2
         checksum = sum(frame[0:3])
         frame[3] = length & 0xFF
@@ -150,7 +146,7 @@ class PN532_UART:
         frame[5:-2] = data
         checksum += sum(data)
         frame[-2] = ~checksum & 0xFF
-        frame[-1] = _POSTAMBLE
+        frame[-1] = _CONSTZERO
         # Send frame.
         if self.debug:
             print("Write frame: ", [hex(i) for i in frame])
@@ -278,7 +274,7 @@ class PN532_UART:
         self.call_function(_COMMAND_SAMCONFIGURATION, params=[0x01, 0x14, 0x01])
 
     def read_passive_target(
-        self, card_baud: int = _MIFARE_ISO14443A, timeout: float = 1
+        self, card_baud: int = _CONSTZERO, timeout: float = 1
     ) -> Optional[bytearray]:
         """Wait for a MiFare card to be available and return its UID when found.
         Will wait up to timeout seconds and return None if no card is found,
@@ -292,7 +288,7 @@ class PN532_UART:
         return self.get_passive_target(timeout=timeout)
 
     def listen_for_passive_target(
-        self, card_baud: int = _MIFARE_ISO14443A, timeout: float = 1
+        self, card_baud: int = _CONSTZERO, timeout: float = 1
     ) -> bool:
         """Send command to PN532 to begin listening for a Mifare card. This
         returns True if the command was received successfully. Note, this does
