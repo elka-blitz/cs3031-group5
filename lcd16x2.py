@@ -6,13 +6,15 @@ class LCD_16x2():
     def __init__(self):
         self.time = 20
         self.message = ''
+        self.line_2 = ''
         self.i2c = I2C(SCL, SDA)
 
     def display_message(self, message, line_2=None, clear_display=False):
 
-        if message != self.message:
+        if message != self.message or line_2 != self.line_2:
+            self.line_2 = line_2
             self.message = message
-            
+
             address = 0x27
 
             while not self.i2c.try_lock():
