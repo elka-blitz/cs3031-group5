@@ -5,6 +5,7 @@ from navbuttons import group5StudyAssistantNavigation
 from led_controller import led_controller
 from nfc_reader import nfc_reader
 
+
 cpx.pixels.brightness = 0.1
 STUDY_ASSISTANT_STATE = 0
 
@@ -22,6 +23,8 @@ TIME_SESSION_COMPLETE = False
 
 lcd = LCD_16x2()
 nav = group5StudyAssistantNavigation()
+nfc = nfc_reader('0x80x', 5)
+led = led_controller()
 
 while True:
     sleep(0.5)
@@ -30,8 +33,8 @@ while True:
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
-    drawer_closed = False 
-    phone_placed = True 
+    drawer_closed = led.is_closed() 
+    phone_placed = nfc.getPhoneState() 
 
     if drawer_closed and phone_placed and not TIME_SESSION_COMPLETE:
         if TIME_SET != True: 
