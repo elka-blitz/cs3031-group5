@@ -32,7 +32,7 @@ from digitalio import Direction
 from micropython import const
 
 try:
-    from typing import Optional, Tuple, Union
+    from typing import Optional, Union
     from busio import UART
     from circuitpython_typing import ReadableBuffer
     from digitalio import DigitalInOut
@@ -51,7 +51,6 @@ _HOSTTOPN532 = const(0xD4)
 _PN532TOHOST = const(0xD5)
 
 # PN532 Commands
-_COMMAND_GETFIRMWAREVERSION = const(0x02)
 _COMMAND_SAMCONFIGURATION = const(0x14)
 _COMMAND_POWERDOWN = const(0x16)
 _COMMAND_INLISTPASSIVETARGET = const(0x4A)
@@ -72,19 +71,16 @@ class PN532_UART:
         uart: UART,
         *,
         debug: bool = False,
-        irq: Optional[DigitalInOut] = None,
         reset: Optional[DigitalInOut] = None,
     ) -> None:
         """Create an instance of the PN532 class"""
         self.low_power = True
         self._uart = uart
         self.debug = debug
-        self._irq = irq
         self._reset_pin = reset
         self.reset()
-        _ = self.firmware_version
 
-    def _read_data(self, count: int) -> bytes: # previously Union[bytes, bytearray]
+    def _read_data(self, count: int) -> Union[bytes, bytearray]:
         """Read a specified count of bytes from the PN532."""
         frame = self._uart.read(count)
         if not frame:
@@ -270,16 +266,6 @@ class PN532_UART:
             self.low_power = response[0] == 0x00
         time.sleep(0.005)
         return self.low_power
-
-    @property
-    def firmware_version(self) -> Tuple[int, int, int, int]:
-        """Call PN532 GetFirmwareVersion function and return a tuple with the IC,
-        Ver, Rev, and Support values.
-        """
-        response = self.call_function(_COMMAND_GETFIRMWAREVERSION, 4, timeout=0.5)
-        if response is None:
-            raise RuntimeError("Failed to detect the PN532")
-        return tuple(response)
 
     def SAM_configuration(self) -> None:
         """Configure the PN532 to read MiFare cards."""
