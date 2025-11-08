@@ -18,7 +18,7 @@ ANIMATION_FRAME_TICK = 0
 ANIMATION_UPDATE = True
 FRAME_LENGTH = 2
 
-TIME_REMAINING = 5
+TIME_REMAINING = 6
 TIME_INDEX = 5
 TIME_LOCK = False
 TIME_COMPLETE = False
@@ -52,8 +52,6 @@ while True:
     phone_placed = cp.switch
 
     SHELF_STATE = STATE_IDLE if not drawer_closed and not phone_placed else STATE_PHONE_NOT_DETECTED if drawer_closed and not phone_placed else STATE_SET_TIMER if phone_placed and not drawer_closed else STATE_COUNTDOWN if phone_placed and drawer_closed and not TIME_COMPLETE else STATE_SESSION_COMPLETE
-    
-    lcd_page(SHELF_STATE)
 
     if SHELF_STATE == STATE_COUNTDOWN:
         if not TIME_LOCK:
@@ -81,8 +79,7 @@ while True:
         if nav.touch_a2() and TIME_INDEX >= 5:
             TIME_INDEX -= 5
 
-    # elif STATE_SESSION_COMPLETE:
-
-
     else:
         print('idle')
+
+    lcd_page(SHELF_STATE)
