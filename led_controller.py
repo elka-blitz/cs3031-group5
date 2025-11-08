@@ -1,5 +1,5 @@
 from time import sleep
-from board import A3, A4, A5
+from board import A0, A6, A7
 from adafruit_hcsr04 import HCSR04
 from neopixel import NeoPixel
 
