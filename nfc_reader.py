@@ -46,17 +46,22 @@ class nfc_reader:
             print("Skipping read.")
 
         unique_uid = set(self.recent_checks)
+        [i for i in a if not i in b or b.remove(i)]
 
         if self.identifier_wildcard == None:
             prefix_uid = [uuid[:5] for uuid in unique_uid]
-            if len(set(prefix_uid)) < len(unique_uid):
+            unique_prefix_uid = set(prefix_uid)
+            [prefix_uid.remove(i) for i in unique_prefix_uid]
+            for j in prefix_uid:
+                valid_detections = [m for m in unique_uid if m[:5] == prefix_uid]
+                uid_lengths = [len(n) for n in valid_detections]
                 found_phone = True
         else:
-            for uuid in unique_uid:
-                if self.identifier_wildcard != uuid[:self.len_wildcard]:
-                    unique_uid.remove(uuid)
-            if len(unique_uid) > 1:
-                found_phone = True
+            valid_detections = [m for m in unique_uid if m[:self.len_wildcard] == self.identifier_wildcard]
+            if len(valid_detections) > 1:
+                uid_lengths = [len(n) for n in valid_detections]
+                if len(set(uid_lengths)) > uid_lengths:
+                    found_phone = True
         
         self.poweroff()
         return found_phone
