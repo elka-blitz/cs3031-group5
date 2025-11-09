@@ -7,11 +7,11 @@ If you need to upgrade, download the version available on the CS3031 canvas page
 Modified version of PN532_simpletest.py. Modified by Laura Maye, 2025.
 '''
 
-import time, busio
+import time
 from nfc_reader import nfc_reader 
 
 # known identifier wildcard for phone
-identifier_wildcard = '0x80x'
+identifier_wildcard = '0x80'
 # maximum number of false detections in a row before function getPhoneState() returns false
 max_false_count = 5
 # create an NFC object and initiate connection to reader
