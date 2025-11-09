@@ -3,30 +3,16 @@ from led_controller import led_controller
 from navbuttons import group5StudyAssistantNavigation
 from time import sleep, time
 
-prox = led_controller()
-nav = group5StudyAssistantNavigation()
-lcd = LCD_16x2()
-prox.update_lights(False)
+ext_ring_and_prox_sensor, nav, lcd = led_controller(), group5StudyAssistantNavigation(), LCD_16x2()
+ext_ring_and_prox_sensor.update_lights(False)
 # nfc = nfc_reader('0x80x', 5)
 
 SHELF_STATE, STATE_IDLE, STATE_PHONE_NOT_DETECTED, STATE_SET_TIMER, STATE_COUNTDOWN, STATE_SESSION_COMPLETE = [i for i in range(0, 6)]
+DO_ANIMATION, ANIMATION_CYCLE, ANIMATION_FRAME_TICK, ANIMATION_UPDATE, FRAME_LENGTH  = True, False, 0, True, 2
+TIME_REMAINING, TIME_INDEX, TIME_LOCK, TIME_COMPLETE = 6, 5, False, False
 
-DO_ANIMATION = True
-ANIMATION_CYCLE = False
-ANIMATION_FRAME_TICK = 0
-ANIMATION_UPDATE = True
-FRAME_LENGTH = 2
-
-TIME_REMAINING = 6
-TIME_INDEX = 5
-TIME_LOCK = False
-TIME_COMPLETE = False
-
-def lcd_page(page_no):
-    global TIME_INDEX
-    global TIME_REMAINING
-    global ANIMATION_FRAME_TICK
-    global ANIMATION_CYCLE
+def lcd_page_updater(page_no):
+    global TIME_INDEX, TIME_REMAINING, ANIMATION_FRAME_TICK, ANIMATION_CYCLE
     ANIMATION_FRAME_TICK += 1
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE
@@ -46,7 +32,7 @@ while True:
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
-    drawer_closed = prox.is_closed() 
+    drawer_closed = ext_ring_and_prox_sensor.is_closed() 
     # phone_placed = nfc.getPhoneState()
     phone_placed = True
 
@@ -63,7 +49,7 @@ while True:
         if TIME_REMAINING < 1:
             TIME_COMPLETE = True
 
-        prox.update_progress(TIME_REMAINING/TIME_INDEX)
+        ext_ring_and_prox_sensor.update_progress(TIME_REMAINING/TIME_INDEX)
 
     elif SHELF_STATE == STATE_SET_TIMER:
 
@@ -71,9 +57,7 @@ while True:
             TIME_COMPLETE = False
 
         if TIME_LOCK:
-            TIME_LOCK = False
-            TIME_INDEX = TIME_INDEX / 60
-            TIME_REMAINING = TIME_REMAINING / 60
+            TIME_LOCK, TIME_INDEX, TIME_REMAINING = False, TIME_INDEX / 60, TIME_REMAINING / 60
 
         if nav.touch_a1():
             TIME_INDEX += 5
@@ -81,4 +65,4 @@ while True:
         if nav.touch_a2() and TIME_INDEX >= 5:
             TIME_INDEX -= 5
 
-    lcd_page(SHELF_STATE)
+    lcd_page_updater(SHELF_STATE)
