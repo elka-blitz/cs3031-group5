@@ -2,7 +2,6 @@ from lcd16x2 import LCD_16x2
 from led_controller import led_controller
 from navbuttons import group5StudyAssistantNavigation
 from time import sleep, time
-from adafruit_circuitplayground import cp
 
 prox = led_controller()
 nav = group5StudyAssistantNavigation()
@@ -33,7 +32,7 @@ def lcd_page(page_no):
         ANIMATION_CYCLE = not ANIMATION_CYCLE
         ANIMATION_FRAME_TICK = 0
     TIME_INDEX = TIME_INDEX
-    line_1a,line_2a,line_1b,line_2b = ('Place phone','in shelf','To start','Study session') if page_no == STATE_IDLE else ('Studying...', str(TIME_REMAINING), 'Studying...', str(TIME_REMAINING)) if page_no == STATE_COUNTDOWN else ('Phone not', 'detected', 'Place phone', 'in shelf') if page_no == STATE_PHONE_NOT_DETECTED else ('Set timer', str(TIME_INDEX), 'Set timer', str(TIME_INDEX)) if page_no == STATE_SET_TIMER else ('Session complete', 'Open shelf', 'To start', 'new session') if page_no == STATE_SESSION_COMPLETE else ('error', 'e', 'e', 'error')
+    line_1a,line_2a,line_1b,line_2b = ('Place phone','in shelf','To start','Study session') if page_no == STATE_IDLE else ('Studying...', str(round(TIME_REMAINING/60)), 'Studying...', str(round(TIME_REMAINING/60))) if page_no == STATE_COUNTDOWN else ('Phone not', 'detected', 'Place phone', 'in shelf') if page_no == STATE_PHONE_NOT_DETECTED else ('Set timer', str(TIME_INDEX), 'Set timer', str(TIME_INDEX)) if page_no == STATE_SET_TIMER else ('Session complete', 'Open shelf', 'To start', 'new session') if page_no == STATE_SESSION_COMPLETE else ('error', 'e', 'e', 'error')
 
     if ANIMATION_CYCLE:
         lcd.display_message(line_1a, line_2=line_2a)
@@ -49,13 +48,14 @@ while True:
         ANIMATION_FRAME_TICK = 0
     drawer_closed = prox.is_closed() 
     # phone_placed = nfc.getPhoneState()
-    phone_placed = cp.switch
+    phone_placed = True
 
     SHELF_STATE = STATE_IDLE if not drawer_closed and not phone_placed else STATE_PHONE_NOT_DETECTED if drawer_closed and not phone_placed else STATE_SET_TIMER if phone_placed and not drawer_closed else STATE_COUNTDOWN if phone_placed and drawer_closed and not TIME_COMPLETE else STATE_SESSION_COMPLETE
 
     if SHELF_STATE == STATE_COUNTDOWN:
         if not TIME_LOCK:
             TIME_LOCK = True
+            TIME_INDEX = TIME_INDEX * 60
             TIME_REMAINING = TIME_INDEX
 
         TIME_REMAINING -= 1
@@ -78,8 +78,5 @@ while True:
 
         if nav.touch_a2() and TIME_INDEX >= 5:
             TIME_INDEX -= 5
-
-    else:
-        print('idle')
 
     lcd_page(SHELF_STATE)
