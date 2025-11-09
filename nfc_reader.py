@@ -41,29 +41,28 @@ class nfc_reader:
 
         try:
             uid_array = self.read()
-            for i in uid_array:
-                if i in self.exclusion_ids:
-                    uid_array.remove(i)
+            for uid in uid_array:
+                if uid in self.exclusion_ids:
+                    uid_array.remove(uid)
             self.recent_checks += uid_array
             
         except RuntimeError:
             print("Skipping read.")
 
         unique_uid = set(self.recent_checks)
-        [i for i in a if not i in b or b.remove(i)]
 
         if self.identifier_wildcard == None:
-            prefix_uid = [uuid[:5] for uuid in unique_uid]
+            prefix_uid = [a[:5] for a in unique_uid]
             unique_prefix_uid = set(prefix_uid)
-            [prefix_uid.remove(i) for i in unique_prefix_uid]
+            [prefix_uid.remove(b) for b in unique_prefix_uid]
             for j in prefix_uid:
-                valid_detections = [m for m in unique_uid if m[:5] == prefix_uid]
-                uid_lengths = [len(n) for n in valid_detections]
+                valid_detections = [c for c in unique_uid if c[:5] == prefix_uid]
+                uid_lengths = [len(d) for d in valid_detections]
                 found_phone = True
         else:
-            valid_detections = [m for m in unique_uid if m[:self.len_wildcard] == self.identifier_wildcard]
+            valid_detections = [i for i in unique_uid if i[:self.len_wildcard] == self.identifier_wildcard]
             if len(valid_detections) > 1:
-                uid_lengths = [len(n) for n in valid_detections]
+                uid_lengths = [len(j) for j in valid_detections]
                 if len(set(uid_lengths)) > uid_lengths:
                     found_phone = True
         

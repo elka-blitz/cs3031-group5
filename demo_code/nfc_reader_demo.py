@@ -22,8 +22,9 @@ from nfc_reader import nfc_reader
 identifier_wildcard = '0x80x' # this is for a pixel phone. Set to None if wildcard is unknown
 # maximum number of false detections in a row before function getPhoneState() returns false
 max_false_count = 5
+exclusion_ids = []
 # create an NFC object and initiate connection to reader
-nfc_reader = nfc_reader(identifier_wildcard, max_false_count)
+nfc_reader = nfc_reader(identifier_wildcard, exclusion_ids, max_false_count)
 
 while True:
     # Check if a card is available to read
