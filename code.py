@@ -32,7 +32,7 @@ def lcd_page(page_no):
         ANIMATION_CYCLE = not ANIMATION_CYCLE
         ANIMATION_FRAME_TICK = 0
     TIME_INDEX = TIME_INDEX
-    line_1a,line_2a,line_1b,line_2b = ('Place phone','in shelf','To start','Study session') if page_no == STATE_IDLE else ('Studying...', str(round(TIME_REMAINING/60)), 'Studying...', str(round(TIME_REMAINING/60))) if page_no == STATE_COUNTDOWN else ('Phone not', 'detected', 'Place phone', 'in shelf') if page_no == STATE_PHONE_NOT_DETECTED else ('Set timer', str(TIME_INDEX), 'Set timer', str(TIME_INDEX)) if page_no == STATE_SET_TIMER else ('Session complete', 'Open shelf', 'To start', 'new session') if page_no == STATE_SESSION_COMPLETE else ('error', 'e', 'e', 'error')
+    line_1a,line_2a,line_1b,line_2b = ('Place phone','in shelf','To start','Study session') if page_no == STATE_IDLE else ('Studying...', str(round(TIME_REMAINING/60)) + ' minutes', 'Studying...', str(round(TIME_REMAINING/60)) + ' minutes') if page_no == STATE_COUNTDOWN else ('Phone not', 'detected', 'Place phone', 'in shelf') if page_no == STATE_PHONE_NOT_DETECTED else ('Set timer', str(int(TIME_INDEX)) + ' minutes', 'Set timer', str(int(TIME_INDEX)) + ' minutes') if page_no == STATE_SET_TIMER else ('Session complete', 'Open shelf', 'To start', 'new session') if page_no == STATE_SESSION_COMPLETE else ('error', 'e', 'e', 'error')
 
     if ANIMATION_CYCLE:
         lcd.display_message(line_1a, line_2=line_2a)
@@ -72,6 +72,8 @@ while True:
 
         if TIME_LOCK:
             TIME_LOCK = False
+            TIME_INDEX = TIME_INDEX / 60
+            TIME_REMAINING = TIME_REMAINING / 60
 
         if nav.touch_a1():
             TIME_INDEX += 5
