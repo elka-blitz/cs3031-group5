@@ -49,6 +49,7 @@ _HOSTTOPN532 = const(0xD4)
 _PN532TOHOST = const(0xD5)
 
 # PN532 Commands
+_COMMAND_GETFIRMWAREVERSION = const(0x02)
 _COMMAND_SAMCONFIGURATION = const(0x14)
 _COMMAND_POWERDOWN = const(0x16)
 _COMMAND_INLISTPASSIVETARGET = const(0x4A)
@@ -75,6 +76,8 @@ class PN532_UART:
         self.debug = debug
         self._reset_pin = reset
         self.reset()
+        _ = self.firmware_version
+
 
     def _read_data(self, count: int) -> Union[bytes, bytearray]:
         """Read a specified count of bytes from the PN532."""
@@ -262,6 +265,16 @@ class PN532_UART:
             self.low_power = response[0] == 0x00
         time.sleep(0.005)
         return self.low_power
+    
+    @property
+    def firmware_version(self) -> Tuple[int, int, int, int]:
+        """Call PN532 GetFirmwareVersion function and return a tuple with the IC,
+        Ver, Rev, and Support values.
+        """
+        response = self.call_function(_COMMAND_GETFIRMWAREVERSION, 4, timeout=0.5)
+        if response is None:
+            raise RuntimeError("Failed to detect the PN532")
+        return tuple(response)
 
     def SAM_configuration(self) -> None:
         """Configure the PN532 to read MiFare cards."""
@@ -299,7 +312,7 @@ class PN532_UART:
         # Send passive read command for 1 card.  Expect at most a 7 byte UUID.
         try:
             response = self.send_command(
-                _COMMAND_INLISTPASSIVETARGET, params=[0x01, card_baud], timeout=timeout
+                _COMMAND_INLISTPASSIVETARGET, params=[0x02, card_baud], timeout=timeout
             )
         except BusyError:
             return False  # _COMMAND_INLISTPASSIVETARGET failed
@@ -316,15 +329,18 @@ class PN532_UART:
         card's UID. This reduces the amount of time spend checking for a card.
         """
         response = self.process_response(
-            _COMMAND_INLISTPASSIVETARGET, response_length=30, timeout=timeout
+            _COMMAND_INLISTPASSIVETARGET, response_length=50, timeout=timeout
         )
+        
         # If no response is available return None to indicate no card is present.
         if response is None:
             return None
-        # Check only 1 card with up to a 7 byte UID is present.
-        if response[0] != 0x01:
-            raise RuntimeError("More than one card detected!")
-        if response[5] > 7:
-            raise RuntimeError("Found card with unexpectedly long UID!")
-        # Return UID of card.
-        return response[6 : 6 + response[5]]
+        # Check 1 or two cards present.
+        elif response[0] is 0x01:
+            return response[6:] # Return UID of card.
+        elif response[0] is 0x02:
+            response_arr = response[6 :].split(b'\x02\x00')
+            response_arr[1] = response_arr[1][3:]
+            return response_arr
+        else:
+            raise RuntimeError("Unusual response received.")
