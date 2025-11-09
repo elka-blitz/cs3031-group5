@@ -5,7 +5,7 @@ from time import sleep, time
 
 ext_ring_and_prox_sensor, nav, lcd = led_controller(), group5StudyAssistantNavigation(), LCD_16x2()
 ext_ring_and_prox_sensor.update_lights(False)
-# nfc = nfc_reader('0x80x', 5)
+nfc = nfc_reader('0x80', 4) # pass None here instead of '0x80 if wildcard is unknown'
 
 SHELF_STATE, STATE_IDLE, STATE_PHONE_NOT_DETECTED, STATE_SET_TIMER, STATE_COUNTDOWN, STATE_SESSION_COMPLETE = [i for i in range(0, 6)]
 DO_ANIMATION, ANIMATION_CYCLE, ANIMATION_FRAME_TICK, ANIMATION_UPDATE, FRAME_LENGTH  = True, False, 0, True, 2
@@ -33,8 +33,8 @@ while True:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
     drawer_closed = ext_ring_and_prox_sensor.is_closed() 
-    # phone_placed = nfc.getPhoneState()
-    phone_placed = True
+    phone_placed = nfc.getPhoneState()
+    #phone_placed = True
 
     SHELF_STATE = STATE_IDLE if not drawer_closed and not phone_placed else STATE_PHONE_NOT_DETECTED if drawer_closed and not phone_placed else STATE_SET_TIMER if phone_placed and not drawer_closed else STATE_COUNTDOWN if phone_placed and drawer_closed and not TIME_COMPLETE else STATE_SESSION_COMPLETE
 
