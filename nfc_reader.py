@@ -7,7 +7,7 @@ def uid_string(uid):
 
 class nfc_reader:
 
-    def __init__(self, identifier_wildcard, max_check_count):       
+    def __init__(self, identifier_wildcard, exclusion_ids, max_check_count):       
         self._uart = UART(TX, RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
         self._pn532.SAM_configuration()
@@ -15,6 +15,7 @@ class nfc_reader:
         self.identifier_wildcard = identifier_wildcard
         if identifier_wildcard != None:
             self.len_wildcard = len(identifier_wildcard)
+        self.exclusion_ids = exclusion_ids
         self.max_check_count = max_check_count
 
     def read(self):
@@ -40,6 +41,9 @@ class nfc_reader:
 
         try:
             uid_array = self.read()
+            for i in uid_array:
+                if i in self.exclusion_ids:
+                    uid_array.remove(i)
             self.recent_checks += uid_array
             
         except RuntimeError:
