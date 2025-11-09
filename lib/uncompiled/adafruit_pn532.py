@@ -10,6 +10,7 @@ This module will let you communicate with a PN532 RFID/NFC shield or breakout
 using I2C, SPI or UART.
 
 * Author(s): Original Raspberry Pi code by Tony DiCola, CircuitPython by ladyada
+* Downsized and modified for CS3031 Nov 2025
 
 Implementation Notes
 --------------------
@@ -38,9 +39,6 @@ try:
     from digitalio import DigitalInOut
 except ImportError:
     pass
-
-__version__ = "2.4.6"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PN532.git"
 
 _CONSTZERO = const(0x00)
 _STARTCODE2 = const(0xFF)

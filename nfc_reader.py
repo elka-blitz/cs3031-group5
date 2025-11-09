@@ -13,6 +13,8 @@ class nfc_reader:
         self._pn532.SAM_configuration()
         self.recent_checks = []
         self.identifier_wildcard = identifier_wildcard
+        if identifier_wildcard != None:
+            self.len_wildcard = len(identifier_wildcard)
         self.max_check_count = max_check_count
 
     def read(self):
@@ -46,12 +48,12 @@ class nfc_reader:
         unique_uid = set(self.recent_checks)
 
         if self.identifier_wildcard == None:
-            prefix_uid = [uuid[:4] for uuid in unique_uid]
-            if len(set(prefix_uid)) != len(prefix_uid):
+            prefix_uid = [uuid[:5] for uuid in unique_uid]
+            if len(set(prefix_uid)) < len(unique_uid):
                 found_phone = True
         else:
             for uuid in unique_uid:
-                if self.identifier_wildcard != uuid[:4]:
+                if self.identifier_wildcard != uuid[:self.len_wildcard]:
                     unique_uid.remove(uuid)
             if len(unique_uid) > 1:
                 found_phone = True
