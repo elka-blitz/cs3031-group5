@@ -1,6 +1,7 @@
 from lcd16x2 import LCD_16x2
 from led_controller import led_controller
 from navbuttons import group5StudyAssistantNavigation
+from nfc_reader import nfc_reader
 from time import sleep, time
 
 ext_ring_and_prox_sensor, nav, lcd = led_controller(), group5StudyAssistantNavigation(), LCD_16x2()
