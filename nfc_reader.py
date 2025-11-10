@@ -7,12 +7,15 @@ def uid_string(uid):
 
 class nfc_reader:
 
-    def __init__(self, identifier_wildcard, max_check_count):       
+    def __init__(self, identifier_wildcard, exclusion_ids, max_check_count):       
         self._uart = UART(TX, RX, baudrate=115200, timeout=0.1)
         self._pn532 = PN532_UART(self._uart , debug=False)
         self._pn532.SAM_configuration()
         self.recent_checks = []
         self.identifier_wildcard = identifier_wildcard
+        if identifier_wildcard != None:
+            self.len_wildcard = len(identifier_wildcard)
+        self.exclusion_ids = exclusion_ids
         self.max_check_count = max_check_count
 
     def read(self):
@@ -38,6 +41,9 @@ class nfc_reader:
 
         try:
             uid_array = self.read()
+            for uid in uid_array:
+                if uid in self.exclusion_ids:
+                    uid_array.remove(uid)
             self.recent_checks += uid_array
             
         except RuntimeError:
@@ -46,15 +52,19 @@ class nfc_reader:
         unique_uid = set(self.recent_checks)
 
         if self.identifier_wildcard == None:
-            prefix_uid = [uuid[:4] for uuid in unique_uid]
-            if len(set(prefix_uid)) != len(prefix_uid):
+            prefix_uid = [a[:5] for a in unique_uid]
+            unique_prefix_uid = set(prefix_uid)
+            [prefix_uid.remove(b) for b in unique_prefix_uid]
+            for j in prefix_uid:
+                valid_detections = [c for c in unique_uid if c[:5] == prefix_uid]
+                uid_lengths = [len(d) for d in valid_detections]
                 found_phone = True
         else:
-            for uuid in unique_uid:
-                if self.identifier_wildcard != uuid[:4]:
-                    unique_uid.remove(uuid)
-            if len(unique_uid) > 1:
-                found_phone = True
+            valid_detections = [i for i in unique_uid if i[:self.len_wildcard] == self.identifier_wildcard]
+            if len(valid_detections) > 1:
+                uid_lengths = [len(j) for j in valid_detections]
+                if len(set(uid_lengths)) > uid_lengths:
+                    found_phone = True
         
         self.poweroff()
         return found_phone
