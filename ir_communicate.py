@@ -1,12 +1,12 @@
 import adafruit_irremote
-import pulseio
-import board
+from pulseio import PulseOut, PulseIn
+from board import IR_TX, D5
 
 class ir_shelfstate():
     def __init__(self):
-        self.pulseout = pulseio.PulseOut(board.IR_TX, frequency=38000, duty_cycle=2 ** 15)
+        self.pulseout = PulseOut(IR_TX, frequency=38000, duty_cycle=2 ** 15)
         self.encoder = adafruit_irremote.GenericTransmit(header=[9000, 4500], one=[560, 1700], zero=[560, 560], trail=0)
-        self.ir_receiver = pulseio.PulseIn(board.D5, maxlen=120, idle_state=True)
+        self.ir_receiver = PulseIn(D5, maxlen=120, idle_state=True)
         self.decoder = adafruit_irremote.GenericDecode()
 
 
