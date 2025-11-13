@@ -21,7 +21,7 @@ class ir_shelfstate():
             received_code = self.decode_ir_signals(pulses)
             if received_code:
                 hex_code = ''.join(["%02X" % x for x in received_code])
-            print(f"Received: {hex_code}")
+            return hex_code
         except adafruit_irremote.IRNECRepeatException:  # Signal was repeated, ignore
             pass
         except adafruit_irremote.IRDecodeException:  # Failed to decode signal
