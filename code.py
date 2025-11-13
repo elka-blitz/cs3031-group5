@@ -1,14 +1,24 @@
 from lcd16x2 import LCD_16x2
 from led_controller import led_controller
 from navbuttons import group5StudyAssistantNavigation
-from time import sleep, time
-from nfc_reader import nfc_reader
+from time import sleep
 from ir_communicate import ir_shelfstate
 
-ext_ring_and_prox_sensor, nav, lcd = led_controller(), group5StudyAssistantNavigation(), LCD_16x2()
-ext_ring_and_prox_sensor.update_lights(False)
-nfc = nfc_reader('0x80', 4) # pass None here instead of '0x80 if wildcard is unknown'
+system_components_connected = True
+lcd, nav, ext_ring_and_prox_sensor, ir = 0,0,0,0
 
+try:
+    lcd = LCD_16x2()
+    nav = group5StudyAssistantNavigation()
+    ext_ring_and_prox_sensor = led_controller()
+
+    ext_ring_and_prox_sensor.update_lights(False)
+
+except Exception:
+    print('Components not connected')
+    system_components_connected = False
+
+ir = ir_shelfstate()
 # Placehoder, placeholder, boolean, boolean
 recieved_states = [255, 255, False, False]
 
@@ -30,20 +40,23 @@ def lcd_page_updater(page_no):
     else:
         lcd.display_message(line_1b, line_2=line_2b)
 
-while True:
+while system_components_connected:
     sleep(1)
     # Check for updated transmission
     attempt_recieved_states = ir_shelfstate.receive()
-    recieved_states = attempt_recieved_states if attempt_recieved_states != None else recieved_states
+    print('gg')
+    recieved_states = attempt_recieved_states if len(attempt_recieved_states) < 4 else recieved_states
 
     if DO_ANIMATION: 
         ANIMATION_FRAME_TICK += 1
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
-    drawer_closed = recieved_states[2]
-    phone_placed = recieved_states[3]
+    drawer_closed = recieved_states[3]
+    phone_placed = recieved_states[2]
     #phone_placed = True
+
+    print(drawer_closed, phone_placed)
 
     SHELF_STATE = STATE_IDLE if not drawer_closed and not phone_placed else STATE_PHONE_NOT_DETECTED if drawer_closed and not phone_placed else STATE_SET_TIMER if phone_placed and not drawer_closed else STATE_COUNTDOWN if phone_placed and drawer_closed and not TIME_COMPLETE else STATE_SESSION_COMPLETE
 
@@ -75,3 +88,9 @@ while True:
             TIME_INDEX -= 5
 
     lcd_page_updater(SHELF_STATE)
+
+
+print('IR Receive mode')
+while not system_components_connected:
+    sleep(1)
+    ir.receive()
