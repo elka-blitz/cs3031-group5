@@ -56,15 +56,16 @@ class nfc_reader:
             unique_prefix_uid = set(prefix_uid)
             [prefix_uid.remove(b) for b in unique_prefix_uid]
             for j in prefix_uid:
-                valid_detections = [c for c in unique_uid if c[:5] == prefix_uid]
+                valid_detections = [c for c in unique_uid if c[:5] == j]
                 uid_lengths = [len(d) for d in valid_detections]
-                found_phone = True
+                if len(set(uid_lengths)) <= 2:
+                    found_phone = True
         else:
             valid_detections = [i for i in unique_uid if i[:self.len_wildcard] == self.identifier_wildcard]
             if len(valid_detections) > 1:
-                uid_lengths = [len(j) for j in valid_detections]
-                if len(set(uid_lengths)) > uid_lengths:
+                uid_lengths = [len(d) for d in valid_detections]
+                if len(set(uid_lengths)) <= 2:
                     found_phone = True
         
-        self.poweroff()
+        #self.poweroff()
         return found_phone
