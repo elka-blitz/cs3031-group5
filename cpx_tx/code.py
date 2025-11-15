@@ -3,7 +3,7 @@ import pulseio
 from board import IR_TX
 
 from nfc_reader import nfc_reader
-from led_controller import sonar
+from led_controller import led_controller
 
 import adafruit_irremote
 
@@ -14,15 +14,20 @@ encoder = adafruit_irremote.GenericTransmit(
     header=[9000, 4500], one=[560, 1700], zero=[560, 560], trail=560
 )
 
-nfc = nfc_reader(None, [], 4) # pass None here instead of '0x80 if wildcard is unknown'
-ext_ring_and_prox_sensor = sonar()
+transmit_sensors = True
 
+try:
+    nfc = nfc_reader(None, [], 4) # pass None here instead of '0x80 if wildcard is unknown'
+    prox_sensor = led_controller()
+except:
+    print("Ensure all components attached. Exiting")
+    transmit_sensors = False
 
-while True:
+while transmit_sensors:
 
-    drawer_closed = ext_ring_and_prox_sensor.is_closed() 
+    drawer_closed = prox_sensor.is_closed() 
     phone_placed = nfc.getPhoneState()
     signal = [255, 2, phone_placed, drawer_closed] 
     encoder.transmit(pulseout, signal)
-    print(signal)
+    print("Transmitting:",str(signal))
     time.sleep(1)
