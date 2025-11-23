@@ -15,18 +15,27 @@ encoder = adafruit_irremote.GenericTransmit(
 )
 
 transmit_sensors = True
+nfc_found = True
 
 try:
     nfc = nfc_reader(None, [], 4) # pass None here instead of '0x80 if wildcard is unknown'
+except:
+    nfc_found = False
+    phone_placed = True
+    print("No NFC reader detected. Switching to proximity only.")
+
+try:
     prox_sensor = led_controller()
 except:
-    print("Ensure all components attached. Exiting")
     transmit_sensors = False
+    print("No proximity sensor detected. Exiting")
 
 while transmit_sensors:
 
     drawer_closed = prox_sensor.is_closed() 
-    phone_placed = nfc.getPhoneState()
+    if nfc_found:
+        phone_placed = nfc.getPhoneState()
+
     signal = [255, 2, phone_placed, drawer_closed] 
     encoder.transmit(pulseout, signal)
     print("Transmitting:",str(signal))
