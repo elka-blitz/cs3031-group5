@@ -8,10 +8,13 @@ system_components_connected = True
 lcd, nav, ext_ring_and_prox_sensor, ir = 0,0,0,0
 
 try:
+    print('lcd')
     lcd = LCD_16x2()
+    print('nav')
     nav = group5StudyAssistantNavigation()
+    print('led')
     ext_ring_and_prox_sensor = led_controller()
-
+    print('func')
     ext_ring_and_prox_sensor.update_lights(False)
 
 except Exception:
@@ -20,11 +23,12 @@ except Exception:
 
 ir = ir_shelfstate()
 # Placehoder, placeholder, boolean, boolean
-recieved_states = [255, 255, False, False]
+placeholder_recieved_states = [255, 245, False, False]
 
 SHELF_STATE, STATE_IDLE, STATE_PHONE_NOT_DETECTED, STATE_SET_TIMER, STATE_COUNTDOWN, STATE_SESSION_COMPLETE = [i for i in range(0, 6)]
 DO_ANIMATION, ANIMATION_CYCLE, ANIMATION_FRAME_TICK, ANIMATION_UPDATE, FRAME_LENGTH  = True, False, 0, True, 2
 TIME_REMAINING, TIME_INDEX, TIME_LOCK, TIME_COMPLETE = 6, 5, False, False
+ir_re_init = 0
 
 def lcd_page_updater(page_no):
     global TIME_INDEX, TIME_REMAINING, ANIMATION_FRAME_TICK, ANIMATION_CYCLE
@@ -42,18 +46,40 @@ def lcd_page_updater(page_no):
 
 while system_components_connected:
     sleep(1)
+    ir_re_init += 1
+    if ir_re_init > 20:
+        ir_re_init = 0
+        ir = 0
+        ir = ir_shelfstate()
     # Check for updated transmission
-    attempt_recieved_states = ir_shelfstate.receive()
-    print('gg')
-    recieved_states = attempt_recieved_states if len(attempt_recieved_states) < 4 else recieved_states
+    received_states = None
+    try:
+        received_states = ir.receive()
+    except RuntimeError:
+        print('RuntimeError!')
+    except MemoryError:
+        print(('MemoryError!'))
+    except TypeError:
+        print('Typeerror') # Values will default
+
+    print('components online')
+    # recieved_states = attempt_recieved_states if len(attempt_recieved_states) < 4 else recieved_states
+
+    print('ir debug', received_states)
 
     if DO_ANIMATION: 
         ANIMATION_FRAME_TICK += 1
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
-    drawer_closed = recieved_states[3]
-    phone_placed = recieved_states[2]
+
+    try:
+        drawer_closed = bool(received_states[0])
+        phone_placed = bool(received_states[1])
+    except TypeError:
+        print('invalid transmission, defaulting values')
+        drawer_closed = False
+        phone_placed = False
     #phone_placed = True
 
     print(drawer_closed, phone_placed)
@@ -93,4 +119,13 @@ while system_components_connected:
 print('IR Receive mode')
 while not system_components_connected:
     sleep(1)
-    ir.receive()
+    try:
+
+        received = ir.receive()
+        print(bool(received[0]))
+    except RuntimeError:
+        print('RuntimeError!')
+    except MemoryError:
+        print(('MemoryError!'))
+    except TypeError:
+        print('Possible none, typeerror')
