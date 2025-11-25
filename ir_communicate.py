@@ -16,6 +16,7 @@ class ir_shelfstate():
         try:
             code = self.decoder.decode_bits(pulses)
             print("Decoded:", code)
+            return code
         except adafruit_irremote.IRNECRepeatException:  # unusual short code!
             print("NEC repeat!")
         except adafruit_irremote.IRDecodeException:  # Failed to decode signal
