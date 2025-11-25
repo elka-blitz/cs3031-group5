@@ -36,7 +36,6 @@ while transmit_sensors:
     if nfc_found:
         phone_placed = nfc.getPhoneState()
 
-    signal = [255, 2, phone_placed, drawer_closed] 
-    encoder.transmit(pulseout, signal)
-    print("Transmitting:",str(signal))
+    encoder.transmit(pulseout, [phone_placed, drawer_closed])
+    print("Transmitting:",str(phone_placed, drawer_closed))
     time.sleep(1)
