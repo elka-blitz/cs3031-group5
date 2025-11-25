@@ -59,6 +59,8 @@ while system_components_connected:
         print('RuntimeError!')
     except MemoryError:
         print(('MemoryError!'))
+    except TypeError:
+        print('Typeerror') # Values will default
 
     print('components online')
     # recieved_states = attempt_recieved_states if len(attempt_recieved_states) < 4 else recieved_states
