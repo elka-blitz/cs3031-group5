@@ -5,7 +5,7 @@ from board import REMOTEIN
 class ir_shelfstate():
     def __init__(self):
         print('ir init')
-        self.pulsein = PulseIn(REMOTEIN, maxlen=40, idle_state=True)
+        self.pulsein = PulseIn(REMOTEIN, maxlen=40)
         self.decoder = adafruit_irremote.GenericDecode()
 
     def receive(self):
