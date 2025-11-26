@@ -20,9 +20,11 @@ try:
 except:
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as f:
-        f.write("date,time,phone_state,shelf_state,study_time")
+        f.write("date,time,phone_state,shelf_state,system_state_changed,study_time")
 
-new_shelf_state, new_phone_state, new_value = False, False, False
+got_shelf_state, got_phone_state, got_value = False, False, False
+old_phone_state, old_shelf_state = "", ""
+got_new_phone_state, got_new_shelf_state = False, False
 
 while run_log:
 
@@ -35,22 +37,27 @@ while run_log:
                 if "Gobal phone state" in m:
                     msg_split = m.split(" ")
                     phone_state = msg_split[-1]
-                    new_phone_state = True
+                    got_phone_state = True
+                    if phone_state != old_phone_state:
+                        got_new_phone_state = True
 
                 elif "Global shelf state" in m:
                     msg_split = m.split(" ")
                     shelf_state = msg_split[-1]
-                    new_shelf_state = True
+                    got_shelf_state = True
+                    if shelf_state != old_shelf_state:
+                        got_new_shelf_state = True
 
                 elif "Value" in m:
                     msg_split = m.split(" ")
                     value = msg_split[1] 
-                    new_value = True
+                    got_value = True
 
-            if (new_shelf_state and new_phone_state and new_value):
+            if (got_shelf_state and got_phone_state and got_value):
+                system_state_changed = (got_new_phone_state or got_new_shelf_state)
                 with open(filename, "a") as f:
-                    f.write(f"{date},{clock},{phone_state},{shelf_state},{value}\n")
-                new_shelf_state, new_phone_state, new_value = False, False, False
+                    f.write(f"{date},{clock},{phone_state},{shelf_state},{str(system_state_changed)}{value}\n")
+                got_shelf_state, got_phone_state, got_value, got_new_phone_state, got_new_shelf_state = False, False, False, False, False
 
     except IndexError:
         pass
