@@ -21,7 +21,7 @@ except:
     with open(filename, "w") as f:
         f.write("New logging session initiated\n")
 
-phone_state_old, shelf_state_old = "", ""
+phone_state_old, shelf_state_old, value = "", "", ""
 
 while run_log:
     new_shelf_state, new_phone_state = False
