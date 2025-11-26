@@ -40,6 +40,7 @@ while run_log:
                     got_phone_state = True
                     if phone_state != old_phone_state:
                         got_new_phone_state = True
+                        old_phone_state = phone_state
 
                 elif "Global shelf state" in m:
                     msg_split = m.split(" ")
@@ -47,6 +48,7 @@ while run_log:
                     got_shelf_state = True
                     if shelf_state != old_shelf_state:
                         got_new_shelf_state = True
+                        old_shelf_state = shelf_state
 
                 elif "Value" in m:
                     msg_split = m.split(" ")
