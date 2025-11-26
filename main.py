@@ -22,10 +22,9 @@ except:
         f.write("New logging session initiated\n")
 
 phone_state_old, shelf_state_old, value = "", "", ""
-new_shelf_state, new_phone_state = False, False
 
 while run_log:
-    new_shelf_state, new_phone_state = False
+    new_shelf_state, new_phone_state = False, False
 
     try:
         msg = serial_1.readList()
