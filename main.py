@@ -57,7 +57,7 @@ while run_log:
                 system_state_changed = (got_new_phone_state or got_new_shelf_state)
                 with open(filename, "a") as f:
                     f.write(f"{date},{clock},{phone_state},{shelf_state},{str(system_state_changed)}{value}\n")
-                got_shelf_state, got_phone_state, got_value, got_new_phone_state, got_new_shelf_state = False, False, False, False, False
+                got_shelf_state = got_phone_state = got_value = got_new_phone_state = got_new_shelf_state = False
 
     except IndexError:
         pass
