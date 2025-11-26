@@ -21,7 +21,11 @@ except:
     with open(filename, "w") as f:
         f.write("New logging session initiated\n")
 
+phone_state_old, shelf_state_old = "", ""
+
 while run_log:
+    new_shelf_state, new_phone_state = False
+
     try:
         msg = serial_1.readList()
         
@@ -31,15 +35,25 @@ while run_log:
                 if "Gobal phone state" in m:
                     msg_split = m.split(" ")
                     phone_state = msg_split[-1]
-                if "Global shelf state" in m:
+                    if phone_state_old != phone_state:
+                        new_phone_state = True
+                        phone_state_old = phone_state
+
+                elif "Global shelf state" in m:
                     msg_split = m.split(" ")
                     shelf_state = msg_split[-1]
-                if "Value" in m:
+                    if shelf_state_old != shelf_state:
+                        new_shelf_state = True
+                        shelf_state_old = shelf_state
+
+                elif "Value" in m:
                     msg_split = m.split(" ")
                     value = m.split(1) 
 
-            with open(filename, "a") as f:
-                f.write(f"{date},{clock},{"Phone:"},{phone_state},{"Shelf:"},{shelf_state},{"Value:"},{value}\n")
+            if (new_shelf_state or new_phone_state):
+                with open(filename, "a") as f:
+                    f.write(f"{date},{clock},{"Phone:"},{phone_state},{"Shelf:"},{shelf_state},{"Value:"},{value}\n")
+        
     except IndexError:
         pass
 
