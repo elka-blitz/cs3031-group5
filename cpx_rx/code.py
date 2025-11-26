@@ -1,11 +1,17 @@
 from lcd16x2 import LCD_16x2
-from led_controller import led_controller
+from led_controller_rx import led_controller
 from navbuttons import group5StudyAssistantNavigation
 from time import sleep
 from ir_communicate import ir_shelfstate
+from gc import collect
+
+import supervisor
+supervisor.runtime.autoreload = False
 
 system_components_connected = True
-lcd, nav, ext_ring_and_prox_sensor, ir = 0,0,0,0
+SHELF_STATE, STATE_IDLE, STATE_PHONE_NOT_DETECTED, STATE_SET_TIMER, STATE_COUNTDOWN, STATE_SESSION_COMPLETE = [i for i in range(0, 6)]
+DO_ANIMATION, ANIMATION_CYCLE, ANIMATION_FRAME_TICK, ANIMATION_UPDATE, FRAME_LENGTH  = True, False, 0, True, 2
+TIME_REMAINING, TIME_INDEX, TIME_LOCK, TIME_COMPLETE = 6, 1, False, False
 
 try:
     print('lcd')
@@ -21,15 +27,6 @@ except Exception:
     print('Components not connected')
     system_components_connected = False
 
-ir = ir_shelfstate()
-# Placehoder, placeholder, boolean, boolean
-placeholder_recieved_states = [255, 245, False, False]
-
-SHELF_STATE, STATE_IDLE, STATE_PHONE_NOT_DETECTED, STATE_SET_TIMER, STATE_COUNTDOWN, STATE_SESSION_COMPLETE = [i for i in range(0, 6)]
-DO_ANIMATION, ANIMATION_CYCLE, ANIMATION_FRAME_TICK, ANIMATION_UPDATE, FRAME_LENGTH  = True, False, 0, True, 2
-TIME_REMAINING, TIME_INDEX, TIME_LOCK, TIME_COMPLETE = 6, 5, False, False
-ir_re_init = 0
-
 def lcd_page_updater(page_no):
     global TIME_INDEX, TIME_REMAINING, ANIMATION_FRAME_TICK, ANIMATION_CYCLE
     ANIMATION_FRAME_TICK += 1
@@ -44,43 +41,40 @@ def lcd_page_updater(page_no):
     else:
         lcd.display_message(line_1b, line_2=line_2b)
 
+
+
+ir = ir_shelfstate()
+
+global_phone_state = False
+global_shelf_state = False
+
 while system_components_connected:
+    print('\033[96m-----\033[0m')
+    print('\033[1mSystem components connected\033[0m')
     sleep(1)
-    ir_re_init += 1
-    if ir_re_init > 20:
-        ir_re_init = 0
-        ir = 0
-        ir = ir_shelfstate()
-    # Check for updated transmission
-    received_states = None
     try:
-        received_states = ir.receive()
+        received = ir.receive()
+        collect()
+        if received != None and len(received) == 2:
+            print('\033[94mMain process\033[0m', received)
+            global_phone_state = received[0]
+            global_shelf_state = received[1]
+
+        print('Gobal phone state: ', global_phone_state)
+        print('Global shelf state', global_shelf_state)
     except RuntimeError:
-        print('RuntimeError!')
-    except MemoryError:
-        print(('MemoryError!'))
-    except TypeError:
-        print('Typeerror') # Values will default
+        continue
 
-    print('components online')
-    # recieved_states = attempt_recieved_states if len(attempt_recieved_states) < 4 else recieved_states
-
-    print('ir debug', received_states)
-
+    
     if DO_ANIMATION: 
         ANIMATION_FRAME_TICK += 1
     if ANIMATION_FRAME_TICK > FRAME_LENGTH:
         ANIMATION_CYCLE = not ANIMATION_CYCLE 
         ANIMATION_FRAME_TICK = 0
 
-    try:
-        drawer_closed = bool(received_states[0])
-        phone_placed = bool(received_states[1])
-    except TypeError:
-        print('invalid transmission, defaulting values')
-        drawer_closed = False
-        phone_placed = False
-    #phone_placed = True
+    drawer_closed = global_shelf_state
+    phone_placed = global_phone_state
+
 
     print(drawer_closed, phone_placed)
 
@@ -110,22 +104,23 @@ while system_components_connected:
         if nav.touch_a1():
             TIME_INDEX += 5
 
-        if nav.touch_a2() and TIME_INDEX >= 5:
+        if nav.touch_a2() and TIME_INDEX >= 10:
             TIME_INDEX -= 5
 
     lcd_page_updater(SHELF_STATE)
-
-
-print('IR Receive mode')
+    collect()
 while not system_components_connected:
     sleep(1)
     try:
-
         received = ir.receive()
-        print(bool(received[0]))
+        if received != None:
+            # print('\033[94mMain process\033[0m', received)
+            global_phone_state = received[0]
+            global_shelf_state = received[1]
+
+        print('Gobal phone state: ', global_phone_state)
+        print('Global shelf state', global_shelf_state)
     except RuntimeError:
-        print('RuntimeError!')
-    except MemoryError:
-        print(('MemoryError!'))
-    except TypeError:
-        print('Possible none, typeerror')
+        continue
+
+    
