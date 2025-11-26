@@ -15,16 +15,16 @@ filename = f"logs/{date}_log.txt"
 
 try:
     f = open(filename)
+    f.write("New logging session initiated\n")
     f.close()
 except:
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as f:
-        f.write("New logging session initiated\n")
+        f.write("date,time,phone_state,shelf_state,study_time")
 
-phone_state_old, shelf_state_old, value = "", "", ""
+new_shelf_state, new_phone_state, new_value = False, False, False
 
 while run_log:
-    new_shelf_state, new_phone_state = False, False
 
     try:
         msg = serial_1.readList()
@@ -35,25 +35,23 @@ while run_log:
                 if "Gobal phone state" in m:
                     msg_split = m.split(" ")
                     phone_state = msg_split[-1]
-                    if phone_state_old != phone_state:
-                        new_phone_state = True
-                        phone_state_old = phone_state
+                    new_phone_state = True
 
                 elif "Global shelf state" in m:
                     msg_split = m.split(" ")
                     shelf_state = msg_split[-1]
-                    if shelf_state_old != shelf_state:
-                        new_shelf_state = True
-                        shelf_state_old = shelf_state
+                    new_shelf_state = True
 
                 elif "Value" in m:
                     msg_split = m.split(" ")
-                    value = m.split(1) 
+                    value = msg_split[1] 
+                    new_value = True
 
-            if (new_shelf_state or new_phone_state):
+            if (new_shelf_state and new_phone_state and new_value):
                 with open(filename, "a") as f:
-                    f.write(f"{date},{clock},{"Phone:"},{phone_state},{"Shelf:"},{shelf_state},{"Value:"},{value}\n")
-        
+                    f.write(f"{date},{clock},{phone_state},{shelf_state},{value}\n")
+                new_shelf_state, new_phone_state, new_value = False, False, False
+
     except IndexError:
         pass
 
