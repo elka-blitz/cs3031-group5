@@ -1,7 +1,7 @@
 from board import A0
 from neopixel import NeoPixel
 
-class led_controller1:
+class led_controller:
     
     def __init__(self):
         self.pixel_amount = 12

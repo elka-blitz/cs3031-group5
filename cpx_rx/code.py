@@ -1,5 +1,5 @@
 from lcd16x2 import LCD_16x2
-from led_controller import led_controller1
+from led_controller_rx import led_controller
 from navbuttons import group5StudyAssistantNavigation
 from time import sleep
 from ir_communicate import ir_shelfstate
@@ -19,7 +19,7 @@ try:
     print('nav')
     nav = group5StudyAssistantNavigation()
     print('led')
-    ext_ring_and_prox_sensor = led_controller1()
+    ext_ring_and_prox_sensor = led_controller()
     print('func')
     ext_ring_and_prox_sensor.update_lights(False)
 
